@@ -1,0 +1,20 @@
+{
+  "name": "flopitank",
+  "version": "1.0.0",
+  "description": "A simple tank game with socket.io",
+  "main": "server.jns",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://FlopiVG@bitbucket.org/FlopiVG/flopitank.git"
+  },
+  "author": "Flopi",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/FlopiVG/flopitank#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "socket.io": "^1.4.5"
+  }
+}

@@ -1,0 +1,10 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+# npm folder
+node_modules/
+
+# webstorm conf folder
+.idea/
+
+# npm log
+npm-debug.log

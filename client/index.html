@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flopi Tank</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<canvas id="ctx"></canvas>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    // VARIABLES GLOBALES
+    var HEIGHT = 500;
+    var WIDTH = 500;
+
+    //Estilo del canvas
+    var ctx = document.getElementById("ctx").getContext("2d");
+    document.getElementById("ctx").width = WIDTH;
+    document.getElementById("ctx").height = HEIGHT;
+    ctx.font='30px Arial';
+
+    var socket = io();
+
+</script>
+
+</body>
+</html>
