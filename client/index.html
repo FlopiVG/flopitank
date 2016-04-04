@@ -23,6 +23,16 @@
 
     var socket = io();
 
+    socket.on('client', function(data){
+        console.log(data.entity.length);
+        for(var i = 0; i < data.entity.length; i++){
+            ctx.save();
+            ctx.fillRect(data.entity[i].x, data.entity[i].y, data.entity[i].width, data.entity[i].height);
+            ctx.restore();
+        }
+    });
+
+    socket.emit('sendCTX', ctx);
 </script>
 
 </body>
