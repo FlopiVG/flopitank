@@ -15,22 +15,47 @@ app.use(express.static(__dirname + '/client'));
 serv.listen(5000);
 console.log("Server started http://localhost:5000");
 
+
+
 var Entity = function(id){
 
     var self = {
+        //== GENERAL ==\\
         id: id,
         x: 250,
         y: 250,
         width: 25,
         height: 25,
-        type: "estandar"
+        type: "estandar",
+        maxSpd: 25,
+        spdX: 0,
+        spdY: 0,
+        //== KEYS == \\
+        pressUP: false,
+        pressDOWN: false,
+        pressRIGHT: false,
+        pressLEFT: false
     };
 
-    /*self.draw = function(canvas){
-        canvas.save();
-        canvas.fillRect(self.x, self.y, self.width, self.height);
-        canvas.restore();
-    };*/
+    self.update = function(){
+        self.updateSpd();
+        self.updatePosition();
+    };
+
+    self.updatePosition = function(){
+        self.x += self.spdX;
+        self.y += self.spdY;
+    };
+
+    self.updateSpd = function(){
+            if (self.pressRIGHT) self.spdX = self.maxSpd;
+            else if (self.pressLEFT) self.spdX = -self.maxSpd;
+            else self.spdX = 0;
+
+            if (self.pressUP) self.spdY = -self.maxSpd;
+            else if (self.pressDOWN) self.spdY = self.maxSpd;
+            else self.spdY = 0;
+    };
 
     Entity.list[id] = self;
 
@@ -40,6 +65,21 @@ Entity.list = {};
 
 Entity.onConnect = function(socket){
     var entity = Entity(socket.id);
+
+    socket.on('keyPress', function(data){
+        if(data.inputId === 'left') {
+            entity.pressLEFT = data.state;
+        }
+        else if(data.inputId === 'right') {
+            entity.pressRIGHT = data.state;
+        }
+        else if(data.inputId === 'up') {
+            entity.pressUP = data.state;
+        }
+        else if(data.inputId === 'down') {
+            entity.pressDOWN = data.state;
+        }
+    });
 };
 
 Entity.onDisconnect = function(socket){
@@ -81,6 +121,11 @@ io.sockets.on('connection', function(socket) {
 
 //Loop del juego
 setInterval(function(){
+
+    for(var i in Entity.list){
+        Entity.list[i].update();
+    }
+
     var pack = {
         entity: Entity.update()
     };
