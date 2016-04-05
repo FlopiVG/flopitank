@@ -25,9 +25,9 @@
 
     socket.on('client', function(data){
         ctx.clearRect(0, 0, WIDTH, HEIGHT); // Limpiar pantalla despues de cada refresco
-        for(var i = 0; i < data.entity.length; i++){
+        for(var i = 0; i < data.player.length; i++){
             ctx.save();
-            ctx.fillRect(data.entity[i].x, data.entity[i].y, data.entity[i].width, data.entity[i].height);
+            ctx.fillRect(data.player[i].x, data.player[i].y, data.player[i].width, data.player[i].height);
             ctx.restore();
         }
     });

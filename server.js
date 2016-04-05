@@ -18,17 +18,17 @@ console.log("Server started http://localhost:5000");
 // Cambiar en caso de tener que cambiar tambien en cliente
 var WIDTH = 500;
 var HEIGHT = 500;
-
-var Entity = function(id){
+// ENTITY \\
+var Entity = function(id, x, y, width, height, type){
 
     var self = {
         //== GENERAL ==\\
         id: id,
-        x: 250,
-        y: 250,
-        width: 50,
-        height: 50,
-        type: "estandar",
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        type: type,
         maxSpd: 5,
         spdX: 0,
         spdY: 0,
@@ -40,7 +40,6 @@ var Entity = function(id){
     };
 
     self.update = function(){
-        self.updateSpd();
         self.updatePosition();
         self.collisionEntity();
     };
@@ -48,16 +47,6 @@ var Entity = function(id){
     self.updatePosition = function(){
         self.x += self.spdX;
         self.y += self.spdY;
-    };
-
-    self.updateSpd = function(){
-            if (self.pressRIGHT && self.x + self.width < WIDTH) self.spdX = self.maxSpd;
-            else if (self.pressLEFT && self.x > 0) self.spdX = -self.maxSpd;
-            else self.spdX = 0;
-
-            if (self.pressUP && self.y > 0) self.spdY = -self.maxSpd;
-            else if (self.pressDOWN && self.y + self.height < HEIGHT) self.spdY = self.maxSpd;
-            else self.spdY = 0;
     };
 
     self.getDistance = function(entity2){	//return distance (number)
@@ -97,40 +86,66 @@ var Entity = function(id){
     return self;
 };
 Entity.list = {};
+Entity.update = function(socket){
 
-Entity.onConnect = function(socket){
-    var entity = Entity(socket.id);
+};
+
+// PLAYER \\
+var Player = function(id){
+    self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
+
+    var super_update = self.update;
+    self.update = function(){
+        super_update();
+        self.updateSpd();
+    };
+
+    self.updateSpd = function(){
+        if (self.pressRIGHT && self.x + self.width < WIDTH) self.spdX = self.maxSpd;
+        else if (self.pressLEFT && self.x > 0) self.spdX = -self.maxSpd;
+        else self.spdX = 0;
+
+        if (self.pressUP && self.y > 0) self.spdY = -self.maxSpd;
+        else if (self.pressDOWN && self.y + self.height < HEIGHT) self.spdY = self.maxSpd;
+        else self.spdY = 0;
+    };
+
+    Player.list[id] = self;
+
+    return self;
+};
+Player.list = {};
+Player.onConnect = function(socket){
+    var player = Player(socket.id);
 
     socket.on('keyPress', function(data){
         if(data.inputId === 'left') {
-            entity.pressLEFT = data.state;
+            player.pressLEFT = data.state;
         }
         else if(data.inputId === 'right') {
-            entity.pressRIGHT = data.state;
+            player.pressRIGHT = data.state;
         }
         else if(data.inputId === 'up') {
-            entity.pressUP = data.state;
+            player.pressUP = data.state;
         }
         else if(data.inputId === 'down') {
-            entity.pressDOWN = data.state;
+            player.pressDOWN = data.state;
         }
     });
+}
+Player.onDisconnect = function(socket){
+    delete Player.list[socket.id];
 };
-
-Entity.onDisconnect = function(socket){
-    delete Entity.list[socket.id];
-};
-
-Entity.update = function(socket){
+Player.update = function(socket){
     var pack = [];
 
-    for (var i in Entity.list){
-        var entity = Entity.list[i];
+    for (var i in Player.list){
+        var player = Player.list[i];
         pack.push({
-            x: entity.x,
-            y: entity.y,
-            width: entity.width,
-            height: entity.height
+            x: player.x,
+            y: player.y,
+            width: player.width,
+            height: player.height
         });
     }
 
@@ -152,11 +167,11 @@ io.sockets.on('connection', function(socket) {
     socket.id = Math.random();
     SOCKET_LIST[socket.id] = socket;
 
-    Entity.onConnect(socket);
+    Player.onConnect(socket);
 
     socket.on('disconnect', function(){
         delete SOCKET_LIST[socket.id];
-        Entity.onDisconnect(socket);
+        Player.onDisconnect(socket);
     })
 
 });
@@ -164,12 +179,12 @@ io.sockets.on('connection', function(socket) {
 //Loop del juego
 setInterval(function(){
 
-    for(var i in Entity.list){
-        Entity.list[i].update();
+    for(var i in Player.list){
+        Player.list[i].update();
     }
 
     var pack = {
-        entity: Entity.update()
+        player: Player.update()
     };
 
     for(var i in SOCKET_LIST){
