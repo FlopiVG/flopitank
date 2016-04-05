@@ -42,6 +42,7 @@ var Entity = function(id){
     self.update = function(){
         self.updateSpd();
         self.updatePosition();
+        self.collisionEntity();
     };
 
     self.updatePosition = function(){
@@ -79,6 +80,16 @@ var Entity = function(id){
             height:entity2.height
         };
         return testCollisionRectRect(rect1,rect2);
+    };
+
+    self.collisionEntity = function(){ // Colision contra otra entidad
+        for (var i in Entity.list){
+            if (Entity.list[i].id != self.id){
+                if (self.testCollision(Entity.list[i])) {
+                    // Hacer algo cuando 2 player colisionan
+                }
+            }
+        }
     };
 
     Entity.list[id] = self;
