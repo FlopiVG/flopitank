@@ -15,7 +15,9 @@ app.use(express.static(__dirname + '/client'));
 serv.listen(5000);
 console.log("Server started http://localhost:5000");
 
-
+// Cambiar en caso de tener que cambiar tambien en cliente
+var WIDTH = 500;
+var HEIGHT = 500;
 
 var Entity = function(id){
 
@@ -24,10 +26,10 @@ var Entity = function(id){
         id: id,
         x: 250,
         y: 250,
-        width: 25,
-        height: 25,
+        width: 50,
+        height: 50,
         type: "estandar",
-        maxSpd: 25,
+        maxSpd: 5,
         spdX: 0,
         spdY: 0,
         //== KEYS == \\
@@ -48,13 +50,35 @@ var Entity = function(id){
     };
 
     self.updateSpd = function(){
-            if (self.pressRIGHT) self.spdX = self.maxSpd;
-            else if (self.pressLEFT) self.spdX = -self.maxSpd;
+            if (self.pressRIGHT && self.x + self.width < WIDTH) self.spdX = self.maxSpd;
+            else if (self.pressLEFT && self.x > 0) self.spdX = -self.maxSpd;
             else self.spdX = 0;
 
-            if (self.pressUP) self.spdY = -self.maxSpd;
-            else if (self.pressDOWN) self.spdY = self.maxSpd;
+            if (self.pressUP && self.y > 0) self.spdY = -self.maxSpd;
+            else if (self.pressDOWN && self.y + self.height < HEIGHT) self.spdY = self.maxSpd;
             else self.spdY = 0;
+    };
+
+    self.getDistance = function(entity2){	//return distance (number)
+        var vx = self.x - entity2.x;
+        var vy = self.y - entity2.y;
+        return Math.sqrt(vx*vx+vy*vy);
+    };
+
+    self.testCollision = function(entity2){	//return if colliding (true/false)
+        var rect1 = {
+            x:self.x-self.width/2,
+            y:self.y-self.height/2,
+            width:self.width,
+            height:self.height
+        };
+        var rect2 = {
+            x:entity2.x-entity2.width/2,
+            y:entity2.y-entity2.height/2,
+            width:entity2.width,
+            height:entity2.height
+        };
+        return testCollisionRectRect(rect1,rect2);
     };
 
     Entity.list[id] = self;
@@ -102,6 +126,13 @@ Entity.update = function(socket){
     return pack;
 };
 
+testCollisionRectRect = function(rect1,rect2){
+    return rect1.x <= rect2.x+rect2.width
+        && rect2.x <= rect1.x+rect1.width
+        && rect1.y <= rect2.y + rect2.height
+        && rect2.y <= rect1.y + rect1.height;
+};
+
 SOCKET_LIST = {};
 
 var io = require('socket.io')(serv,{});
@@ -135,5 +166,6 @@ setInterval(function(){
         socket.emit('client', pack);
     }
 }, 1000/25);
+
 
 
