@@ -87,6 +87,7 @@ Entity.update = function(socket){
 var Player = function(id){
     self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
     self.mouseAngle = 0;
+    self.attackDelay = 0;
     //== KEYS == \\
     self.pressUP = false;
     self.pressDOWN = false;
@@ -100,8 +101,9 @@ var Player = function(id){
         self.updateSpd();
 
         if(self.pressATTACK) {
-            for(var i = -3; i < 3; i++)
-                self.shootBullet(i * 10 + self.mouseAngle);
+            if(self.attackDelay++ % 40 == 0) { // Delay del ataque
+                self.shootBullet(self.mouseAngle);
+            }
         }
     };
 
@@ -170,7 +172,14 @@ Player.update = function(socket){
 // BULLET \\
 var Bullet = function(parent, angle){
     var id = Math.random();
-    var self = Entity(id, parent.x, parent.y, parent.width/2, parent.height/2, "bullet");
+    var self = Entity(
+        id,
+        parent.x + parent.width / 2 - parent.width / 2 / 2,
+        parent.y + parent.height / 2 - parent.height / 2 / 2,
+        parent.width/2,
+        parent.height/2,
+        "bullet"
+    );
     self.id = Math.random();
     self.parent = parent;
     self.toRemove = false;
@@ -183,16 +192,28 @@ var Bullet = function(parent, angle){
         if(self.timer++ > 40) {
             self.toRemove = true;
         }
-        super_update();
 
         for(var i in Player.list){
             var p = Player.list[i];
             if(self.getDistance(p) < 32 && self.parent.id !== p.id){
                 // handle collision. ex: hp--;
                 self.toRemove = true;
-                console.log("aqui");
             }
         }
+
+        super_update();
+    };
+
+    var super_updatePosition = self.updatePosition;
+    self.updatePosition = function(){
+        if(angle < 0) angle = 360 + angle;
+
+        if(angle >= 45 && angle < 135) self.spdX = 0; //down
+        else if(angle >= 135 && angle < 225) self.spdY = 0; //left
+        else if(angle >= 225 && angle < 315) self.spdX = 0;	//up
+        else self.spdY = 0; // right
+
+        super_updatePosition();
     };
 
     Bullet.list[self.id] = self;
@@ -214,7 +235,6 @@ Bullet.update = function(socket){
             });
         }
     }
-    //console.log(pack);
     return pack;
 };
 
