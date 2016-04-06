@@ -85,7 +85,7 @@ Entity.update = function(socket){
 
 // PLAYER \\
 var Player = function(id){
-    self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
+    var self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
     self.mouseAngle = 0;
     self.attackDelay = 0;
     //== KEYS == \\
