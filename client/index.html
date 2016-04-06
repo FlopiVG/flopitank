@@ -33,9 +33,8 @@
         for(var i = 0; i < data.bullet.length; i++){
             ctx.save();
             ctx.fillStyle = "#FF0000";
-            ctx.fillRect(data.bullet[i].x, data.bullet[i].y, 25, 25);
+            ctx.fillRect(data.bullet[i].x, data.bullet[i].y, data.bullet[i].width, data.bullet[i].height);
             ctx.restore();
-            console.log(data.bullet[i].width + " " + data.bullet[i].height);
         }
 
     });
