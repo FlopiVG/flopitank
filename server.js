@@ -31,12 +31,7 @@ var Entity = function(id, x, y, width, height, type){
         type: type,
         maxSpd: 5,
         spdX: 0,
-        spdY: 0,
-        //== KEYS == \\
-        pressUP: false,
-        pressDOWN: false,
-        pressRIGHT: false,
-        pressLEFT: false
+        spdY: 0
     };
 
     self.update = function(){
@@ -49,10 +44,8 @@ var Entity = function(id, x, y, width, height, type){
         self.y += self.spdY;
     };
 
-    self.getDistance = function(entity2){	//return distance (number)
-        var vx = self.x - entity2.x;
-        var vy = self.y - entity2.y;
-        return Math.sqrt(vx*vx+vy*vy);
+    self.getDistance = function(pt){	//return distance (number)
+        return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2));
     };
 
     self.testCollision = function(entity2){	//return if colliding (true/false)
@@ -93,11 +86,27 @@ Entity.update = function(socket){
 // PLAYER \\
 var Player = function(id){
     self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
+    self.mouseAngle = 0;
+    //== KEYS == \\
+    self.pressUP = false;
+    self.pressDOWN = false;
+    self.pressRIGHT = false;
+    self.pressLEFT = false;
+    self.pressATTACK = false;
 
     var super_update = self.update;
     self.update = function(){
         super_update();
         self.updateSpd();
+
+        if(self.pressATTACK) {
+            for(var i = -3; i < 3; i++)
+                self.shootBullet(i * 10 + self.mouseAngle);
+        }
+    };
+
+    self.shootBullet = function(angle){
+        Bullet(self, angle);
     };
 
     self.updateSpd = function(){
@@ -131,8 +140,14 @@ Player.onConnect = function(socket){
         else if(data.inputId === 'down') {
             player.pressDOWN = data.state;
         }
+        else if(data.inputId === 'attack'){
+            player.pressATTACK = data.state;
+        }
+        else if(data.inputId === 'mouseAngle'){
+            player.mouseAngle = data.state;
+        }
     });
-}
+};
 Player.onDisconnect = function(socket){
     delete Player.list[socket.id];
 };
@@ -149,6 +164,57 @@ Player.update = function(socket){
         });
     }
 
+    return pack;
+};
+
+// BULLET \\
+var Bullet = function(parent, angle){
+    var id = Math.random();
+    var self = Entity(id, parent.x, parent.y, parent.width/2, parent.height/2, "bullet");
+    self.id = Math.random();
+    self.parent = parent;
+    self.toRemove = false;
+    self.timer = 0;
+    self.spdX = Math.cos(angle/180*Math.PI) * 10;
+    self.spdY = Math.sin(angle/180*Math.PI) * 10;
+
+    var super_update = self.update;
+    self.update = function(){
+        if(self.timer++ > 40) {
+            self.toRemove = true;
+        }
+        super_update();
+
+        for(var i in Player.list){
+            var p = Player.list[i];
+            if(self.getDistance(p) < 32 && self.parent.id !== p.id){
+                // handle collision. ex: hp--;
+                self.toRemove = true;
+                console.log("aqui");
+            }
+        }
+    };
+
+    Bullet.list[self.id] = self;
+    return self;
+
+};
+Bullet.list = {};
+Bullet.update = function(socket){
+    var pack = [];
+    for (var i in Bullet.list){
+        var bullet = Bullet.list[i];
+        if(bullet.toRemove) delete Bullet.list[i];
+        else {
+            pack.push({
+                x: bullet.x,
+                y: bullet.y,
+                width: bullet.width,
+                height: bullet.height
+            });
+        }
+    }
+    //console.log(pack);
     return pack;
 };
 
@@ -183,8 +249,13 @@ setInterval(function(){
         Player.list[i].update();
     }
 
+    for(var i in Bullet.list){
+        Bullet.list[i].update();
+    }
+
     var pack = {
-        player: Player.update()
+        player: Player.update(),
+        bullet: Bullet.update()
     };
 
     for(var i in SOCKET_LIST){

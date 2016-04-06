@@ -30,6 +30,14 @@
             ctx.fillRect(data.player[i].x, data.player[i].y, data.player[i].width, data.player[i].height);
             ctx.restore();
         }
+        for(var i = 0; i < data.bullet.length; i++){
+            ctx.save();
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(data.bullet[i].x, data.bullet[i].y, 25, 25);
+            ctx.restore();
+            console.log(data.bullet[i].width + " " + data.bullet[i].height);
+        }
+
     });
 
     document.onkeydown = function(event){
@@ -52,6 +60,21 @@
             socket.emit('keyPress',{inputId:'left',state:false});
         else if(event.keyCode === 87) //w
             socket.emit('keyPress',{inputId:'up',state:false});
+    };
+
+    document.onmousedown = function(event){
+        socket.emit('keyPress', {inputId:'attack', state: true});
+    };
+
+    document.onmouseup = function(event){
+        socket.emit('keyPress', {inputId:'attack', state:false});
+    };
+
+    document.onmousemove = function(event){
+        var x = -250 + event.clientX - 8;
+        var y = -250 + event.clientY - 8;
+        var angle = Math.atan2(y,x) / Math.PI * 180;
+        socket.emit('keyPress', {inputId:'mouseAngle', state:angle});
     };
 
 </script>
