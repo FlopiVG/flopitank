@@ -88,6 +88,8 @@ var Player = function(id){
     var self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
     self.mouseAngle = 0;
     self.attackDelay = 0;
+    self.life = 3;
+    self.toRemove = false;
     //== KEYS == \\
     self.pressUP = false;
     self.pressDOWN = false;
@@ -101,7 +103,7 @@ var Player = function(id){
         self.updateSpd();
 
         if(self.pressATTACK) {
-            if(self.attackDelay++ % 40 == 0) { // Delay del ataque
+            if(self.attackDelay++ % 20 == 0) { // Delay del ataque
                 self.shootBullet(self.mouseAngle);
             }
         }
@@ -158,12 +160,15 @@ Player.update = function(socket){
 
     for (var i in Player.list){
         var player = Player.list[i];
-        pack.push({
-            x: player.x,
-            y: player.y,
-            width: player.width,
-            height: player.height
-        });
+        if(player.toRemove) delete Player.list[i];
+        else {
+            pack.push({
+                x: player.x,
+                y: player.y,
+                width: player.width,
+                height: player.height
+            });
+        }
     }
 
     return pack;
@@ -197,6 +202,8 @@ var Bullet = function(parent, angle){
             var p = Player.list[i];
             if(self.getDistance(p) < 32 && self.parent.id !== p.id){
                 // handle collision. ex: hp--;
+                p.life--;
+                if(p.life <= 0) p.toRemove = true;
                 self.toRemove = true;
             }
         }
