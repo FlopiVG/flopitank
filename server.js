@@ -58,6 +58,40 @@ var Entity = function(id, x, y, width, height, type){
             }
         }
     };*/
+    self.collisionSide = function(a, b){
+        // get the vectors to check against
+        var vX = (a.x + (a.width / 2)) - (b.x + (b.width / 2)),
+            vY = (a.y + (a.height / 2)) - (b.y + (b.height / 2)),
+        // add the half widths and half heights of the objects
+            hWidths = (a.width / 2) + (b.width / 2),
+            hHeights = (a.height / 2) + (b.height / 2),
+            colDir = null;
+
+        // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+        if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+            // figures out on which side we are colliding (top, bottom, left, or right)
+            var oX = hWidths - Math.abs(vX),
+                oY = hHeights - Math.abs(vY);
+            if (oX >= oY) {
+                if (vY > 0) {
+                    colDir = "t";
+                    a.y += oY;
+                } else {
+                    colDir = "b";
+                    a.y -= oY;
+                }
+            } else {
+                if (vX > 0) {
+                    colDir = "l";
+                    a.x += oX;
+                } else {
+                    colDir = "r";
+                    a.x -= oX;
+                }
+            }
+        }
+        return colDir;
+    };
 
     self.testCollision = function(entity1, entity2){
         return (entity1.x < entity2.x + entity2.width  && entity1.x + entity1.width  > entity2.x &&
@@ -91,7 +125,7 @@ var Player = function(id){
     self.update = function(){
         super_update();
         self.updateSpd();
-
+        self.collisionEntity();
         if(self.pressATTACK) {
             if(self.attackDelay++ % 20 == 0) { // Delay del ataque
                 self.shootBullet(self.mouseAngle);
@@ -111,6 +145,40 @@ var Player = function(id){
         if (self.pressUP && self.y > 0) self.spdY = -self.maxSpd;
         else if (self.pressDOWN && self.y + self.height < HEIGHT) self.spdY = self.maxSpd;
         else self.spdY = 0;
+    };
+
+    self.collisionEntity = function(){
+        for(var i in Terrain.list){
+            var t = Terrain.list[i];
+            if(self.testCollision(self, t) && t.type === "obstaculo"){
+                var check = self.collisionSide(self, t);
+                if(check === 'b' || check === 't') self.spdY = 0;
+                if(check === 'l' || check === 'r') self.spdX = 0;
+            }
+        }
+        /*
+         Comprobamos si el player toca alguna bala, si toca alguna bala que no sea suya le resta 1 vida.
+         */
+        for(var i in Bullet.list){
+            var b = Bullet.list[i];
+            if(self.testCollision(self, b) && b.parent.id !== self.id){
+                // handle collision. ex: hp--;
+                self.life--;
+                if(self.life <= 0) self.toRemove = true;
+                b.toRemove = true;
+            }
+        }
+        /*
+         Comprobamos si el player toca a otro player, si lo toca no podra avanzar por la posicion del otro player
+         */
+        for(var i in Player.list) {
+            var p = Player.list[i];
+            if (self.testCollision(self, p) && self.id !== p.id) {
+                var check = self.collisionSide(self, p);
+                if (check === 'b' || check === 't') self.spdY = 0;
+                if (check === 'l' || check === 'r') self.spdX = 0;
+            }
+        }
     };
 
     Player.list[id] = self;
@@ -197,12 +265,10 @@ var Bullet = function(parent, angle){
         Comprobamos si la bala toca algun player, si toca algun player le resta 1 vida, si toca al mismo player que
         lanza la bala no hace nada.
          */
-        for(var i in Player.list){
-            var p = Player.list[i];
-            if(self.testCollision(p, self) && self.parent.id !== p.id){
+        for(var i in Terrain.list){
+            var t = Terrain.list[i];
+            if(self.testCollision(t, self) && t.type === "obstaculo"){
                 // handle collision. ex: hp--;
-                p.life--;
-                if(p.life <= 0) p.toRemove = true;
                 self.toRemove = true;
             }
         }
@@ -243,9 +309,9 @@ Bullet.update = function(socket){
 };
 
 // TERRAIN \\
-var Terrain = function(x, y){
+var Terrain = function(x, y, type){
     var id = Math.random();
-    var self = Entity(id, x, y, WIDTH / 10, HEIGHT / 10, 'terrain');
+    var self = Entity(id, x, y, WIDTH / 10, HEIGHT / 10, type);
 
 
     self.setImg = function(){
@@ -269,7 +335,8 @@ Terrain.update = function(){
             y: terrain.y,
             width: terrain.width,
             height: terrain.height,
-            img: terrain.img
+            img: terrain.img,
+            type: terrain.type
         });
     }
     return pack;
@@ -277,7 +344,12 @@ Terrain.update = function(){
 Terrain.onConnect = function(){
     for(var i = 0; i < 10; i++){
         for(var j = 0; j < 10; j++){
-            Terrain(i * 50,j * 50);
+            Terrain(i * 50,j * 50, 'terrain');
+        }
+    }
+    for(var i = 0; i < 10; i++){
+        for(var j = 0; j < 10; j++){
+            if(Math.random() * 100 > 75) Terrain(i * 50,j * 50, 'obstaculo'); //25% de generar obstaculo
         }
     }
 };

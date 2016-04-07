@@ -47,7 +47,12 @@
         ctx.clearRect(0, 0, WIDTH, HEIGHT); // Limpiar pantalla despues de cada refresco
         for(var i = 0; i < data.terrain.length; i++){
             ctx.save();
-            ctx.drawImage(Img[data.terrain[i].img], data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
+            if(data.terrain[i].type === "terrain")
+                ctx.drawImage(Img[data.terrain[i].img], data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
+            else if(data.terrain[i].type === "obstaculo") {
+                ctx.fillStyle = "red";
+                ctx.fillRect(data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
+            }
             ctx.restore();
         }
         for(var i = 0; i < data.player.length; i++){
