@@ -5,5 +5,5 @@ DONE - Mejorar la colision
 
 ADDS
 ====
-Generara terreno
+DONE - Generara terreno
 Generar obstaculos

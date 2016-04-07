@@ -241,6 +241,46 @@ Bullet.update = function(socket){
     return pack;
 };
 
+// TERRAIN \\
+var Terrain = function(x, y){
+    var id = Math.random();
+    var self = Entity(id, x, y, WIDTH / 10, HEIGHT / 10, 'terrain');
+
+
+    self.setImg = function(){
+        var rand = Math.floor(Math.random() * 4 + 1);
+        if(rand === 1) self.img = "brown";
+        else if (rand === 2) self.img = "green";
+        else if(rand === 3) self.img = "yellow";
+        else if(rand === 4) self.img = "white";
+    };
+
+    Terrain.list[id] = self;
+    return self;
+};
+Terrain.list = {};
+Terrain.update = function(){
+    var pack = [];
+    for (var i in Terrain.list){
+        var terrain = Terrain.list[i];
+        pack.push({
+            x: terrain.x,
+            y: terrain.y,
+            width: terrain.width,
+            height: terrain.height,
+            img: terrain.img
+        });
+    }
+    return pack;
+};
+Terrain.onConnect = function(){
+    for(var i = 0; i < 10; i++){
+        for(var j = 0; j < 10; j++){
+            Terrain(i * 50,j * 50);
+        }
+    }
+};
+
 SOCKET_LIST = {};
 
 var io = require('socket.io')(serv,{});
@@ -260,7 +300,6 @@ io.sockets.on('connection', function(socket) {
 
 //Loop del juego
 setInterval(function(){
-
     for(var i in Player.list){
         Player.list[i].update();
     }
@@ -271,7 +310,8 @@ setInterval(function(){
 
     var pack = {
         player: Player.update(),
-        bullet: Bullet.update()
+        bullet: Bullet.update(),
+        terrain: Terrain.update()
     };
 
     for(var i in SOCKET_LIST){
@@ -280,5 +320,10 @@ setInterval(function(){
     }
 }, 1000/25);
 
+//START THE SERVER
+Terrain.onConnect();
+for(var i in Terrain.list){
+    Terrain.list[i].setImg();
+}
 
 
