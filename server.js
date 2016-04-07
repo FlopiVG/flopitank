@@ -156,7 +156,8 @@ Player.update = function(socket){
                 x: player.x,
                 y: player.y,
                 width: player.width,
-                height: player.height
+                height: player.height,
+                angle: player.mouseAngle
             });
         }
     }
@@ -209,13 +210,13 @@ var Bullet = function(parent, angle){
 
     var super_updatePosition = self.updatePosition;
     self.updatePosition = function(){
-        if(angle < 0) angle = 360 + angle;
+        /*if(angle < 0) angle = 360 + angle;
 
         if(angle >= 45 && angle < 135) self.spdX = 0; //down
         else if(angle >= 135 && angle < 225) self.spdY = 0; //left
         else if(angle >= 225 && angle < 315) self.spdX = 0;	//up
         else self.spdY = 0; // right
-
+*/
         super_updatePosition();
     };
 
@@ -249,10 +250,10 @@ var Terrain = function(x, y){
 
     self.setImg = function(){
         var rand = Math.floor(Math.random() * 4 + 1);
-        if(rand === 1) self.img = "brown";
-        else if (rand === 2) self.img = "green";
-        else if(rand === 3) self.img = "yellow";
-        else if(rand === 4) self.img = "white";
+        if(rand === 1) self.img = "dirt";
+        else if (rand === 2) self.img = "grass";
+        else if(rand === 3) self.img = "sand";
+        else if(rand === 4) self.img = "snow";
     };
 
     Terrain.list[id] = self;
