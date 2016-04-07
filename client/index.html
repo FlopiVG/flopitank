@@ -34,6 +34,9 @@
     //bullet
     Img.bullet = new Image();
     Img.bullet.src = "/img/bullet.png";
+    //obstaculo
+    Img.obstaculo = new Image();
+    Img.obstaculo.src = "/img/obstaculo.jpg";
 
     //Estilo del canvas
     var ctx = document.getElementById("ctx").getContext("2d");
@@ -46,24 +49,23 @@
     socket.on('client', function(data){
         ctx.clearRect(0, 0, WIDTH, HEIGHT); // Limpiar pantalla despues de cada refresco
         for(var i = 0; i < data.terrain.length; i++){
-            ctx.save();
             if(data.terrain[i].type === "terrain")
                 ctx.drawImage(Img[data.terrain[i].img], data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
             else if(data.terrain[i].type === "obstaculo") {
-                ctx.fillStyle = "red";
-                ctx.fillRect(data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
+                ctx.drawImage(Img.obstaculo, data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
             }
-            ctx.restore();
         }
         for(var i = 0; i < data.player.length; i++){
-            ctx.save();
             ctx.drawImage(Img.tankBase, data.player[i].x, data.player[i].y, data.player[i].width, data.player[i].height);
+            ctx.save();
+            ctx.translate(data.player[i].x + data.player[i].width / 2 ,data.player[i].y + data.player[i].height / 2);
+            ctx.rotate(data.player[i].angle * Math.PI/180); // Rotar al angulo en el que esta el cursor
+            ctx.rotate(90 * Math.PI/180); // Rotar 90º para poner correctamente la imagen
+            ctx.drawImage(Img.tankTurret, -(data.player[i].width/2), -(data.player[i].height/2), data.player[i].width, data.player[i].height); // Magia
             ctx.restore();
         }
         for(var i = 0; i < data.bullet.length; i++){
-            ctx.save();
             ctx.drawImage(Img.bullet, data.bullet[i].x, data.bullet[i].y, data.bullet[i].width, data.bullet[i].height);
-            ctx.restore();
         }
     });
 

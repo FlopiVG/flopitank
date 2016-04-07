@@ -6,4 +6,5 @@ DONE - Mejorar la colision
 ADDS
 ====
 DONE - Generara terreno
-Generar obstaculos
+DONE - Generar obstaculos
+DONE - Mover la torreta hacia donde dispara el tanke
