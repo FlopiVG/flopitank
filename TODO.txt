@@ -1,0 +1,9 @@
+BUGS // FIX
+===========
+Calcular el angulo para disparar respecto al player o cargar un mapa y que el player este siempre en el centro
+DONE - Mejorar la colision
+
+ADDS
+====
+Generara terreno
+Generar obstaculos

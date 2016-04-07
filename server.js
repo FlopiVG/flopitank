@@ -36,7 +36,7 @@ var Entity = function(id, x, y, width, height, type){
 
     self.update = function(){
         self.updatePosition();
-        self.collisionEntity();
+        //self.collisionEntity();
     };
 
     self.updatePosition = function(){
@@ -48,30 +48,20 @@ var Entity = function(id, x, y, width, height, type){
         return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2));
     };
 
-    self.testCollision = function(entity2){	//return if colliding (true/false)
-        var rect1 = {
-            x:self.x-self.width/2,
-            y:self.y-self.height/2,
-            width:self.width,
-            height:self.height
-        };
-        var rect2 = {
-            x:entity2.x-entity2.width/2,
-            y:entity2.y-entity2.height/2,
-            width:entity2.width,
-            height:entity2.height
-        };
-        return testCollisionRectRect(rect1,rect2);
-    };
-
-    self.collisionEntity = function(){ // Colision contra otra entidad
+    /*self.collisionEntity = function(){ // Colision contra otra entidad
         for (var i in Entity.list){
-            if (Entity.list[i].id != self.id){
-                if (self.testCollision(Entity.list[i])) {
+            var entity = Entity.list[i];
+            if (entity.id != self.id){
+                if (self.testCollision(entity, self)) {
                     // Hacer algo cuando 2 player colisionan
                 }
             }
         }
+    };*/
+
+    self.testCollision = function(entity1, entity2){
+        return (entity1.x < entity2.x + entity2.width  && entity1.x + entity1.width  > entity2.x &&
+        entity1.y < entity2.y + entity2.height && entity1.y + entity1.height > entity2.y);
     };
 
     Entity.list[id] = self;
@@ -85,7 +75,7 @@ Entity.update = function(socket){
 
 // PLAYER \\
 var Player = function(id){
-    var self = Entity(id, 250, 250, 50, 50, 'Player'); // id, x, y, width, height, type
+    var self = Entity(id, 250, 250, 50, 50, 'player'); // id, x, y, width, height, type
     self.mouseAngle = 0;
     self.attackDelay = 0;
     self.life = 3;
@@ -197,18 +187,24 @@ var Bullet = function(parent, angle){
         if(self.timer++ > 40) {
             self.toRemove = true;
         }
+        self.collisionEntity();
+        super_update();
+    };
 
+    self.collisionEntity = function(){
+        /*
+        Comprobamos si la bala toca algun player, si toca algun player le resta 1 vida, si toca al mismo player que
+        lanza la bala no hace nada.
+         */
         for(var i in Player.list){
             var p = Player.list[i];
-            if(self.getDistance(p) < 32 && self.parent.id !== p.id){
+            if(self.testCollision(p, self) && self.parent.id !== p.id){
                 // handle collision. ex: hp--;
                 p.life--;
                 if(p.life <= 0) p.toRemove = true;
                 self.toRemove = true;
             }
         }
-
-        super_update();
     };
 
     var super_updatePosition = self.updatePosition;
@@ -243,13 +239,6 @@ Bullet.update = function(socket){
         }
     }
     return pack;
-};
-
-testCollisionRectRect = function(rect1,rect2){
-    return rect1.x <= rect2.x+rect2.width
-        && rect2.x <= rect1.x+rect1.width
-        && rect1.y <= rect2.y + rect2.height
-        && rect2.y <= rect1.y + rect1.height;
 };
 
 SOCKET_LIST = {};
