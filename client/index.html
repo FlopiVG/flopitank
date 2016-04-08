@@ -49,23 +49,33 @@
     socket.on('client', function(data){
         ctx.clearRect(0, 0, WIDTH, HEIGHT); // Limpiar pantalla despues de cada refresco
         for(var i = 0; i < data.terrain.length; i++){
-            if(data.terrain[i].type === "terrain")
-                ctx.drawImage(Img[data.terrain[i].img], data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
-            else if(data.terrain[i].type === "obstaculo") {
-                ctx.drawImage(Img.obstaculo, data.terrain[i].x, data.terrain[i].y, data.terrain[i].width, data.terrain[i].height);
+            var t = data.terrain[i];
+            if(t.type === "terrain")
+                ctx.drawImage(Img[t.img], t.x, t.y, t.width, t.height);
+            else if(t.type === "obstaculo") {
+                ctx.drawImage(Img.obstaculo, t.x, t.y, t.width, t.height);
             }
         }
         for(var i = 0; i < data.player.length; i++){
-            ctx.drawImage(Img.tankBase, data.player[i].x, data.player[i].y, data.player[i].width, data.player[i].height);
+            var p = data.player[i];
+            //Tank base
             ctx.save();
-            ctx.translate(data.player[i].x + data.player[i].width / 2 ,data.player[i].y + data.player[i].height / 2);
-            ctx.rotate(data.player[i].angle * Math.PI/180); // Rotar al angulo en el que esta el cursor
+            ctx.translate(p.x + p.width / 2, p.y + p.height / 2);
+            ctx.rotate(p.baseAngle * Math.PI / 180);
+            ctx.rotate(90 * Math.PI / 180);
+            ctx.drawImage(Img.tankBase, -(p.width/2), -(p.height/2), data.player[i].width, data.player[i].height);
+            ctx.restore();
+            //Tank turret
+            ctx.save();
+            ctx.translate(p.x + p.width / 2 ,p.y + data.player[i].height / 2);
+            ctx.rotate(p.angle * Math.PI/180); // Rotar al angulo en el que esta el cursor
             ctx.rotate(90 * Math.PI/180); // Rotar 90º para poner correctamente la imagen
-            ctx.drawImage(Img.tankTurret, -(data.player[i].width/2), -(data.player[i].height/2), data.player[i].width, data.player[i].height); // Magia
+            ctx.drawImage(Img.tankTurret, -(p.width/2), -(p.height/2), p.width, p.height); // Magia
             ctx.restore();
         }
         for(var i = 0; i < data.bullet.length; i++){
-            ctx.drawImage(Img.bullet, data.bullet[i].x, data.bullet[i].y, data.bullet[i].width, data.bullet[i].height);
+            var b = data.bullet[i];
+            ctx.drawImage(Img.bullet, b.x, b.y, b.width, b.height);
         }
     });
 

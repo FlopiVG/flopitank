@@ -114,6 +114,7 @@ var Player = function(id){
     self.attackDelay = 0;
     self.life = 3;
     self.toRemove = false;
+    self.baseAngle = 0;
     //== KEYS == \\
     self.pressUP = false;
     self.pressDOWN = false;
@@ -131,6 +132,18 @@ var Player = function(id){
                 self.shootBullet(self.mouseAngle);
             }
         }
+        self.calculateBaseAngle();
+    };
+
+    self.calculateBaseAngle = function(){
+        if(self.pressUP && self.pressLEFT) self.baseAngle = 45;
+        else if(self.pressUP && self.pressRIGHT) self.baseAngle = -45;
+        else if(self.pressDOWN && self.pressLEFT) self.baseAngle = 145;
+        else if(self.pressDOWN && self.pressRIGHT) self.baseAngle = -145;
+        else if(self.pressUP) self.baseAngle = 90;
+        else if(self.pressDOWN) self.baseAngle = -90;
+        else if(self.pressLEFT) self.baseAngle = 180;
+        else if(self.pressRIGHT) self.baseAngle = -180;
     };
 
     self.shootBullet = function(angle){
@@ -225,7 +238,8 @@ Player.update = function(socket){
                 y: player.y,
                 width: player.width,
                 height: player.height,
-                angle: player.mouseAngle
+                angle: player.mouseAngle,
+                baseAngle: player.baseAngle
             });
         }
     }
