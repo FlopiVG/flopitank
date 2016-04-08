@@ -1,6 +1,6 @@
 BUGS // FIX
 ===========
-Calcular el angulo para disparar respecto al player o cargar un mapa y que el player este siempre en el centro
+DONE - Calcular el angulo para disparar respecto al player o cargar un mapa y que el player este siempre en el centro
 DONE - Mejorar la colision
 
 ADDS
@@ -8,3 +8,4 @@ ADDS
 DONE - Generara terreno
 DONE - Generar obstaculos
 DONE - Mover la torreta hacia donde dispara el tanke
+Mover la base del tanke hacia donde se mueve el player
