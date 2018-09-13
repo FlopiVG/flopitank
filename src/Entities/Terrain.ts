@@ -1,5 +1,5 @@
 import { BaseEntity } from "./Base";
-import { ITerrainEntity } from "./ITerrain";
+import { ITerrainEntity } from "./interfaces/ITerrain";
 import { WIDTH, HEIGHT } from "../constant";
 
 export class TerrainEntity extends BaseEntity implements ITerrainEntity {

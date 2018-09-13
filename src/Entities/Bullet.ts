@@ -1,6 +1,6 @@
 import { BaseEntity } from "./Base";
-import { IBulletEntity } from "./IBullet";
-import { IPlayerEntity } from "./IPlayer";
+import { IBulletEntity } from "./interfaces/IBullet";
+import { IPlayerEntity } from "./interfaces/IPlayer";
 
 export class BulletEntity extends BaseEntity implements IBulletEntity {
   parent: IPlayerEntity;

@@ -1,4 +1,4 @@
-import { IBaseEntity } from "./IBase";
+import { IBaseEntity } from "./interfaces/IBase";
 
 export abstract class BaseEntity implements IBaseEntity {
   id: string;

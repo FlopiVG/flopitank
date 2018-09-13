@@ -1,4 +1,4 @@
-import { IPlayerEntity } from "./IPlayer";
+import { IPlayerEntity } from "./interfaces/IPlayer";
 import { BaseEntity } from "./Base";
 import { HEIGHT, WIDTH } from "../constant";
 
