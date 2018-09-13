@@ -11,6 +11,7 @@ export abstract class BaseEntity implements IBaseEntity {
   spdX: number;
   spdY: number;
   toRemove: boolean;
+  img: string;
 
   constructor(props) {
     this.id = props.id;
@@ -23,6 +24,7 @@ export abstract class BaseEntity implements IBaseEntity {
     this.maxSpeed = 5;
     this.spdX = 0;
     this.spdY = 0;
+    this.img = "";
   }
 
   update() {

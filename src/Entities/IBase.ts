@@ -9,6 +9,7 @@ export interface IBaseEntity {
   maxSpeed: number;
   spdX: number;
   spdY: number;
+  img: string;
   update: () => void;
   updatePosition: () => void;
   getDistance: (x: IBaseEntity) => number;
