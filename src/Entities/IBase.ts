@@ -4,6 +4,7 @@ export interface IBaseEntity {
   y: number;
   width: number;
   height: number;
+  toRemove: boolean;
   type: string;
   maxSpeed: number;
   spdX: number;
@@ -13,4 +14,5 @@ export interface IBaseEntity {
   getDistance: (x: IBaseEntity) => number;
   collisionSide: (x: IBaseEntity, y: IBaseEntity) => string | null;
   testCollision: (x: IBaseEntity, y: IBaseEntity) => boolean;
+  collisionEntity: () => void;
 }

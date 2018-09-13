@@ -5,7 +5,6 @@ export interface IPlayerEntity extends IBaseEntity {
   baseAngle: number;
   life: number;
   attackDelay: number;
-  toRemove: boolean;
   pressUP: boolean;
   pressDOWN: boolean;
   pressRIGHT: boolean;
@@ -14,5 +13,4 @@ export interface IPlayerEntity extends IBaseEntity {
   calculateBaseAngle: () => void;
   shootBullet: (angle: number) => void;
   updateSpeed: () => void;
-  collisionEntity: () => void;
 }
