@@ -1,4 +1,4 @@
-import express from "express";
+import * as express from "express";
 import { PORT } from "./constant";
 
 const app = express();
