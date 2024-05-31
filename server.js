@@ -368,7 +368,7 @@ Terrain.onConnect = function(){
     }
 };
 
-SOCKET_LIST = {};
+var SOCKET_LIST = {};
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
