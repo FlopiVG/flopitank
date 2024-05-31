@@ -3,6 +3,7 @@
  */
 
 var express = require('express');
+const { Entities } = require('./src/Entities');
 var app = express();
 var serv = require('http').Server(app);
 
@@ -18,6 +19,8 @@ console.log("Server started http://localhost:5000");
 // Cambiar en caso de tener que cambiar tambien en cliente
 var WIDTH = 500;
 var HEIGHT = 500;
+
+const entities = new Entities();
 // ENTITY \\
 var Entity = function(id, x, y, width, height, type){
 
@@ -98,13 +101,9 @@ var Entity = function(id, x, y, width, height, type){
         entity1.y < entity2.y + entity2.height && entity1.y + entity1.height > entity2.y);
     };
 
-    Entity.list[id] = self;
+    entities.add(self);
 
     return self;
-};
-Entity.list = {};
-Entity.update = function(socket){
-
 };
 
 // PLAYER \\
