@@ -1,17 +1,17 @@
-type ObjectWithId = object extends { id: string} ?  never : { id: string};
-
+type ObjectWithId = object extends { id: string } ? never : { id: string };
 
 export class Entities {
-    private entities: Record<string, ObjectWithId>;
+  private entities: Record<string, ObjectWithId>;
 
-    constructor() {
-        this.entities = {};
-    }
+  constructor() {
+    this.entities = {};
+  }
 
-    public add(entity: ObjectWithId): void {
-        this.entities = { ...this.entities, [entity.id]: entity };
-    }
+  public add(entity: ObjectWithId): void {
+    this.entities = { ...this.entities, [entity.id]: entity };
+  }
 
-    public getAll(): Record<string, ObjectWithId> {
-        return this.entities;    }
+  public getAll(): Record<string, ObjectWithId> {
+    return this.entities;
+  }
 }
