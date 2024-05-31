@@ -2,7 +2,7 @@
   "name": "flopitank",
   "version": "1.0.0",
   "description": "A simple tank game with socket.io",
-  "main": "server.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,6 +15,7 @@
   "homepage": "https://bitbucket.org/FlopiVG/flopitank#readme",
   "dependencies": {
     "express": "^4.13.4",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "typescript": "^5.4.5"
   }
 }
