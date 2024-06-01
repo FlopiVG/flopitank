@@ -3,6 +3,8 @@
  */
 
 var express = require('express');
+const { Entities } = require('./src/Entities');
+const { Entity } = require('./src/Entity');
 var app = express();
 var serv = require('http').Server(app);
 
@@ -18,98 +20,12 @@ console.log("Server started http://localhost:5000");
 // Cambiar en caso de tener que cambiar tambien en cliente
 var WIDTH = 500;
 var HEIGHT = 500;
-// ENTITY \\
-var Entity = function(id, x, y, width, height, type){
 
-    var self = {
-        //== GENERAL ==\\
-        id: id,
-        x: x,
-        y: y,
-        width: width,
-        height: height,
-        type: type,
-        maxSpd: 5,
-        spdX: 0,
-        spdY: 0
-    };
-
-    self.update = function(){
-        self.updatePosition();
-        //self.collisionEntity();
-    };
-
-    self.updatePosition = function(){
-        self.x += self.spdX;
-        self.y += self.spdY;
-    };
-
-    self.getDistance = function(pt){	//return distance (number)
-        return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2));
-    };
-
-    /*self.collisionEntity = function(){ // Colision contra otra entidad
-        for (var i in Entity.list){
-            var entity = Entity.list[i];
-            if (entity.id != self.id){
-                if (self.testCollision(entity, self)) {
-                    // Hacer algo cuando 2 player colisionan
-                }
-            }
-        }
-    };*/
-    self.collisionSide = function(a, b){
-        // get the vectors to check against
-        var vX = (a.x + (a.width / 2)) - (b.x + (b.width / 2)),
-            vY = (a.y + (a.height / 2)) - (b.y + (b.height / 2)),
-        // add the half widths and half heights of the objects
-            hWidths = (a.width / 2) + (b.width / 2),
-            hHeights = (a.height / 2) + (b.height / 2),
-            colDir = null;
-
-        // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
-        if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-            // figures out on which side we are colliding (top, bottom, left, or right)
-            var oX = hWidths - Math.abs(vX),
-                oY = hHeights - Math.abs(vY);
-            if (oX >= oY) {
-                if (vY > 0) {
-                    colDir = "t";
-                    a.y += oY;
-                } else {
-                    colDir = "b";
-                    a.y -= oY;
-                }
-            } else {
-                if (vX > 0) {
-                    colDir = "l";
-                    a.x += oX;
-                } else {
-                    colDir = "r";
-                    a.x -= oX;
-                }
-            }
-        }
-        return colDir;
-    };
-
-    self.testCollision = function(entity1, entity2){
-        return (entity1.x < entity2.x + entity2.width  && entity1.x + entity1.width  > entity2.x &&
-        entity1.y < entity2.y + entity2.height && entity1.y + entity1.height > entity2.y);
-    };
-
-    Entity.list[id] = self;
-
-    return self;
-};
-Entity.list = {};
-Entity.update = function(socket){
-
-};
+const entities = new Entities();
 
 // PLAYER \\
 var Player = function(id){
-    var self = Entity(id, 250, 250, 50, 50, 'player'); // id, x, y, width, height, type
+    var self = new Entity(id, 250, 250, 50, 50, 'player'); // id, x, y, width, height, type
     self.mouseAngle = 0;
     self.attackDelay = 0;
     self.life = 3;
@@ -325,7 +241,7 @@ Bullet.update = function(socket){
 // TERRAIN \\
 var Terrain = function(x, y, type){
     var id = Math.random();
-    var self = Entity(id, x, y, WIDTH / 10, HEIGHT / 10, type);
+    var self = new Entity(id, x, y, WIDTH / 10, HEIGHT / 10, type);
 
 
     self.setImg = function(){
@@ -368,7 +284,7 @@ Terrain.onConnect = function(){
     }
 };
 
-SOCKET_LIST = {};
+var SOCKET_LIST = {};
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
