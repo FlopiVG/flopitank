@@ -41,13 +41,8 @@ export class Bullet extends Entity {
   }
 
   collisionEntity() {
-    /*
-    Comprobamos si la bala toca algun player, si toca algun player le resta 1 vida, si toca al mismo player que
-    lanza la bala no hace nada.
-     */
     for (const terrain of Object.values(this.terrains.getAll())) {
       if (this.testCollision(terrain, this) && terrain.type === "obstaculo") {
-        // handle collision. ex: hp--;
         this.toRemove = true;
       }
     }

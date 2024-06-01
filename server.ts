@@ -1,13 +1,15 @@
-/**
- * Created by FlopiVG on 04/04/2016.
- */
+import express from 'express';
+import http from 'http';
+import socketIO from 'socket.io';
 
-var express = require('express');
-const { Players } = require('./src/Players');
-const { Terrains } = require('./src/Terrains');
-const { Bullets } = require('./src/Bullets');
-var app = express();
-var serv = require('http').Server(app);
+import { Players } from './src/Players';
+import { Terrains } from './src/Terrains';
+import { Bullets } from './src/Bullets';
+
+const app = express();
+const serv = http.createServer(app);
+const io = socketIO(serv);
+
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/client/index.html');
@@ -22,12 +24,11 @@ const players = new Players();
 const terrains = new Terrains();
 const bullets = new Bullets();
 
-var SOCKET_LIST = {};
+var SOCKET_LIST: Record<string, SocketIO.Socket> = {};
 
-var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 
-    socket.id = Math.random();
+    socket.id = String(Math.random());
     SOCKET_LIST[socket.id] = socket;
 
     players.onConnect(socket, bullets, terrains, players);
@@ -39,7 +40,6 @@ io.sockets.on('connection', function(socket) {
 
 });
 
-//Loop del juego
 setInterval(function(){
     for (const player of Object.values(players.getAll())) {
         player.update();
@@ -55,7 +55,7 @@ setInterval(function(){
 
     var pack = {
         player: players.update(),
-        bullet: players.update(),
+        bullet: bullets.update(),
         terrain: terrains.update()
     };
 
@@ -65,7 +65,6 @@ setInterval(function(){
     }
 }, 1000/25);
 
-//START THE SERVER
 terrains.onConnect();
 
 
